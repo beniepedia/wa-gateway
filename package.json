@@ -1,6 +1,6 @@
 {
   "name": "wa-gateway",
-  "version": "3.2.1",
+  "version": "3.3.1",
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js --ignore ./wa_credentials --ignore ./public",
@@ -12,6 +12,7 @@
   },
   "license": "ISC",
   "dependencies": {
+    "body-parser": "^1.20.2",
     "cookie-parser": "~1.4.4",
     "cors": "^2.8.5",
     "debug": "~2.6.9",

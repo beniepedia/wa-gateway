@@ -71,16 +71,22 @@ exports.sendBulkMessage = async (req, res, next) => {
     next(error);
   }
 };
+
 exports.sendMedia = async (req, res, next) => {
   try {
     let to = req.body.to || req.query.to;
     let text = req.body.text || req.query.text;
-    let media = req.body.media || req.query.media
+    let media = req.body.media || req.query.media;
     let isGroup = req.body.isGroup || req.query.isGroup;
     const sessionId =
       req.body.session || req.query.session || req.headers.session;
 
-    if (!to || !media) throw new ValidationError("Missing Parameters");
+    if (!to || !media)
+      throw new ValidationError("Missing Parameters media or target");
+
+    if (!media.startsWith("http")) {
+      media = Buffer.from(media, "base64");
+    }
 
     const receiver = processNumber(to);
     if (!sessionId) throw new ValidationError("Session Not Founds");
@@ -89,7 +95,7 @@ exports.sendMedia = async (req, res, next) => {
       to: receiver,
       isGroup: !!isGroup,
       text,
-      media: media
+      media: media,
     });
 
     res.status(200).json(
