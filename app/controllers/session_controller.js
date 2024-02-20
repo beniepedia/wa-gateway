@@ -14,6 +14,14 @@ exports.createSession = async (req, res, next) => {
     if (!sessionName) {
       throw new Error("Bad Request");
     }
+
+    if (whatsapp.getSession(sessionName)) {
+      return res.status(400).json({
+        success: false,
+        message: "Session Already",
+      });
+    }
+
     whatsapp.onQRUpdated(async (data) => {
       if (res && !res.headersSent) {
         const qr = await toDataURL(data.qr);
@@ -58,6 +66,44 @@ exports.sessions = async (req, res, next) => {
     }
 
     res.status(200).json(responseSuccessWithData(whatsapp.getAllSession()));
+  } catch (error) {
+    next(error);
+  }
+};
+exports.session = async (req, res, next) => {
+  try {
+    const key = req.body.key || req.query.key || req.headers.key;
+    const sessionName =
+      req.body.session || req.query.session || req.headers.session;
+
+    // is KEY provided and secured
+    if (process.env.KEY && process.env.KEY != key) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid key",
+      });
+    }
+
+    if (!sessionName) {
+      return res.status(400).json({
+        success: false,
+        message: "Require session name",
+      });
+    }
+
+    const checkSession = whatsapp.getSession(sessionName);
+
+    if (!checkSession) {
+      return res.status(404).json({
+        success: false,
+        message: "Session not found!",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      data: checkSession.user,
+    });
   } catch (error) {
     next(error);
   }

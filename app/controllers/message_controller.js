@@ -15,6 +15,7 @@ exports.sendMessage = async (req, res, next) => {
 
     const receiver = processNumber(to);
     if (!sessionId) throw new ValidationError("Session Not Founds");
+
     const send = await whatsapp.sendTextMessage({
       sessionId,
       to: receiver,
@@ -106,6 +107,40 @@ exports.sendMedia = async (req, res, next) => {
         remoteJid: send?.key?.remoteJid,
       })
     );
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.grabNumber = async (req, res, next) => {
+  try {
+    let to = req.body.to || req.query.to;
+    let isGroup = req.body.isGroup || req.query.isGroup;
+
+    const sessionId =
+      req.body.session || req.query.session || req.headers.session;
+
+    if (!to) throw new ValidationError("Missing Parameters target");
+
+    if (!sessionId) throw new ValidationError("Session Not Founds");
+
+    const receiver = processNumber(to);
+
+    const exists = await whatsapp.isExist({
+      sessionId,
+      to: receiver,
+      isGroup: !!isGroup,
+    });
+
+    if (exists) {
+      res.status(200).json({
+        success: true,
+      });
+    } else {
+      res.status(404).json({
+        success: false,
+      });
+    }
   } catch (error) {
     next(error);
   }
