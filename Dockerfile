@@ -3,7 +3,7 @@ WORKDIR /app
 
 VOLUME /app/wa_credentials
 
-COPY package*.json .
+COPY package*.json ./
 
 RUN npm i
 
