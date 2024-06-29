@@ -65,7 +65,13 @@ exports.sessions = async (req, res, next) => {
       throw new ValidationError("Invalid Key");
     }
 
-    res.status(200).json(responseSuccessWithData(whatsapp.getAllSession()));
+    let sessions = whatsapp.getAllSession();
+
+    if (sessions.length > 0) {
+      res.status(200).json(responseSuccessWithData(whatsapp.getAllSession()));
+    } else {
+      res.status(404).json(responseSuccessWithData(whatsapp.getAllSession()));
+    }
   } catch (error) {
     next(error);
   }
